@@ -3,19 +3,21 @@ const Profile = require("../models/profileModel");
 // CREATE PROFILE
 exports.createProfile = async (req, res) => {
   try {
-    const { name, username, bio, gender } = req.body;
+    const { name, email, bio, gender, age, profileImage } = req.body;
 
-    if (!name || !username || !gender) {
-      return res.status(400).json({ error: "Name, username, and gender are required." });
+    if (!name || !email || !gender) {
+      return res.status(400).json({ error: "Name, email, and gender are required." });
     }
 
-    // Check if username already exists
-    const existingProfile = await Profile.findOne({ username });
+    // Check if email already exists
+    const existingProfile = await Profile.findOne({ email });
     if (existingProfile) {
-      return res.status(400).json({ error: "Username already taken." });
+      return res.status(400).json({ error: "Email already taken." });
     }
 
-    const profile = await Profile.create({ name, username, bio, gender });
+    const profile = await Profile.create({
+      name, email, bio, gender, age, profileImage
+    });
 
     res.status(201).json({
       message: "Profile Created Successfully",
@@ -52,21 +54,23 @@ exports.getProfileById = async (req, res) => {
 // UPDATE PROFILE
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, username, bio, gender } = req.body;
+    const { name, email, bio, gender, age, profileImage } = req.body;
     const profile = await Profile.findById(req.params.id);
 
     if (!profile) {
       return res.status(404).json({ error: "Profile Not Found" });
     }
 
-    if (!name || !username || !gender) {
-      return res.status(400).json({ error: "Name, username, and gender are required." });
+    if (!name || !email || !gender) {
+      return res.status(400).json({ error: "Name, email, and gender are required." });
     }
 
     profile.name = name;
-    profile.username = username;
+    profile.email = email;
     profile.bio = bio || profile.bio;
     profile.gender = gender;
+    profile.age = age || profile.age;
+    profile.profileImage = profileImage || profile.profileImage;
 
     await profile.save();
 

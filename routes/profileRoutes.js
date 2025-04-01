@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const profileController = require("../controllers/profileController");
+const usercontroller=require("../controllers/userController")
 
 /**
  * @swagger
@@ -22,9 +23,9 @@ const profileController = require("../controllers/profileController");
  *         name:
  *           type: string
  *           description: Full name of the user
- *         username:
+ *         email:
  *           type: string
- *           description: Unique username of the user
+ *           description: Unique email of the user
  *         bio:
  *           type: string
  *           description: Short bio of the user
@@ -32,34 +33,48 @@ const profileController = require("../controllers/profileController");
  *           type: string
  *           enum: [Male, Female]
  *           description: Gender of the user
+ *         age:
+ *           type: integer
+ *           description: Age of the user
+ *         profileImage:
+ *           type: string
+ *           description: URL of the user's profile image
  *       example:
  *         id: 1
  *         name: John Doe
- *         username: johndoe
+ *         email: johndoe@example.com
  *         bio: Software Developer
  *         gender: Male
+ *         age: 30
+ *         profileImage: "http://example.com/profile.jpg"
  *
  *     CreateProfile:
  *       type: object
  *       required:
  *         - name
- *         - username
+ *         - email
  *         - gender
  *       properties:
  *         name:
  *           type: string
- *         username:
+ *         email:
  *           type: string
  *         bio:
  *           type: string
  *         gender:
  *           type: string
  *           enum: [Male, Female]
+ *         age:
+ *           type: integer
+ *         profileImage:
+ *           type: string
  *       example:
  *         name: Jane Doe
- *         username: janedoe
+ *         email: janedoe@example.com
  *         bio: Tech enthusiast
  *         gender: Female
+ *         age: 25
+ *         profileImage: "http://example.com/profile.jpg"
  */
 
 /**
@@ -103,6 +118,8 @@ router.post("/profiles", profileController.createProfile);
  *                 $ref: '#/components/schemas/Profile'
  */
 router.get("/profiles", profileController.getAllProfiles);
+
+router.post("/createprofile",usercontroller.createProfile)
 
 /**
  * @swagger
@@ -180,5 +197,7 @@ router.put("/profiles/:id", profileController.updateProfile);
  *         description: Profile not found
  */
 router.delete("/profiles/:id", profileController.deleteProfile);
+
+
 
 module.exports = router;

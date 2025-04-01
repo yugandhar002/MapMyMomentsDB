@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
+const profileModel=require("../models/profileModel")
 
 // CREATE USER (Signup)
 exports.createUser = async (req, res) => {
@@ -25,14 +26,28 @@ exports.createUser = async (req, res) => {
       role: role || "user",
     });
 
-    res.status(201).json({
-      message: "User Created Successfully",
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    });
+    res.status(201).json(user)
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.createProfile=async(req,res)=>{
+  try{
+    const {user_id,name,email}=req.body
+    console.log("name "+name)
+    const profileuser=await profileModel.create(
+      {
+        userId:user_id,
+        name:name,
+        email:email
+      }
+    )
+    res.status(200).json(profileuser)
+  }catch(error){
+    res.status(500).json({message:error.message})
+  }
+}
 
 
 // GET ALL USERS (Exclude Passwords)
@@ -152,5 +167,5 @@ exports.loginUser = async (req, res) => {
 };
 
 
-//to assing the admin role
-//UPDATE Users SET role = 'admin' WHERE email = 'user@example.com';
+// to assing the admin role
+// UPDATE Users SET role = 'admin' WHERE email = 'user@example.com';
