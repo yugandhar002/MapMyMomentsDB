@@ -41,11 +41,16 @@ exports.getAllProfiles = async (req, res) => {
 // GET PROFILE BY ID
 exports.getProfileById = async (req, res) => {
   try {
-    const profile = await Profile.findById(req.params.id);
+    const { id } = req.params;
+    const profile = await Profile.findOne({
+      where:{
+        userId:id
+      }
+    })
     if (!profile) {
       return res.status(404).json({ error: "Profile Not Found" });
     }
-    res.status(200).json({ message: "Profile Retrieved Successfully", profile });
+    res.status(200).json( profile );
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -54,25 +59,30 @@ exports.getProfileById = async (req, res) => {
 // UPDATE PROFILE
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email, bio, gender, age, profileImage } = req.body;
-    const profile = await Profile.findById(req.params.id);
+    let {  bio, gender, age,profileimage} = req.body;
+    const {id}=req.params
+    const profile=await Profile.findOne({
+      where:{
+        userId:id
+      }
+    })
+    console.log(profile.id)
 
     if (!profile) {
       return res.status(404).json({ error: "Profile Not Found" });
     }
 
-    if (!name || !email || !gender) {
-      return res.status(400).json({ error: "Name, email, and gender are required." });
-    }
+    if(age=="") age=null
+    if(bio=="") bio=null
+    if(gender=="") gender=null
+    if(profileimage=="") profileimage=null
 
-    profile.name = name;
-    profile.email = email;
-    profile.bio = bio || profile.bio;
-    profile.gender = gender;
-    profile.age = age || profile.age;
-    profile.profileImage = profileImage || profile.profileImage;
-
-    await profile.save();
+    await profile.update({
+      bio:bio || profile.bio,
+      age:age||profile.age,
+      gender:gender||profile.gender,
+      profileImage:profileimage||profile.profileImage
+    })
 
     res.status(200).json({ message: "Profile Updated Successfully", profile });
   } catch (error) {

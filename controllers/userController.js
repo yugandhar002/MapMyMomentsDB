@@ -76,35 +76,26 @@ exports.getUserById = async (req, res) => {
 // UPDATE USER (Allow Role Change)
 exports.updateUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    let { name, email, password, role } = req.body;
     const user = await User.findByPk(req.params.id);
 
     if (!user) {
       return res.status(404).json({ error: "User Not Found" });
     }
 
-    if (!name || !email) {
-      return res.status(400).json({ error: "Name and email are required for update." });
-    }
+    if(name=="") name=null
+    if(email=="") email=null
+    if(password=="") password=null
+    if(role=="") role=null
 
-    let updatedData = { name, email };
-
-    // If password is provided, hash it before updating
-    if (password) {
-      updatedData.password = await bcrypt.hash(password, 10);
-    }
-
-    // Allow role change only if provided
-    if (role) {
-      updatedData.role = role;
-    }
-
-    await user.update(updatedData);
-
-    res.status(200).json({
-      message: "User Updated Successfully",
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    await user.update({
+      name: name || user.name,
+      email: email || user.email,
+      password: password || user.password,
+      role: role || user.role,
     });
+
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -149,16 +140,12 @@ exports.loginUser = async (req, res) => {
     // Directly compare entered password with stored password
     if (password !== user.password) {
       console.log("❌ Password does not match!");
-      return res.status(200).json({ success: false, message: "Invalid credentials!" });
+      return res.status(400).json({ success: false, message: "Invalid credentials!" });
     }
 
     console.log("✅ Password matched successfully!");
 
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      role: user.role,
-    });
+    res.status(200).json(user);
 
   } catch (error) {
     console.error("❌ Error in loginUser:", error);

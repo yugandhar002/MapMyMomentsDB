@@ -144,7 +144,7 @@ router.post("/createprofile",usercontroller.createProfile)
  *       404:
  *         description: Profile not found
  */
-router.get("/profiles/:id", profileController.getProfileById);
+router.get("/profilebyid/:id", profileController.getProfileById);
 
 /**
  * @swagger
@@ -175,7 +175,7 @@ router.get("/profiles/:id", profileController.getProfileById);
  *       404:
  *         description: Profile not found
  */
-router.put("/profiles/:id", profileController.updateProfile);
+router.put("/updateprofile/:id", profileController.updateProfile);
 
 /**
  * @swagger
