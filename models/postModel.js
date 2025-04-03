@@ -25,8 +25,7 @@ const Post = sequelize.define("Post", {
   },
   images: {
     type: DataTypes.JSON, // Store image URLs as an array
-    allowNull: true,
-    defaultValue: [],
+    allowNull: false,
   },
 }, { timestamps: true });
 

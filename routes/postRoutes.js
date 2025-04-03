@@ -1,6 +1,27 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 const postController = require("../controllers/postController");
+
+// Ensure the uploads directory exists
+const uploadDir = "uploads/";
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Multer storage setup
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir); // Store images in "uploads/" folder
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // Rename file with timestamp
+    }
+});
+
+const upload = multer({ storage });
 
 /**
  * @swagger
@@ -43,7 +64,7 @@ const postController = require("../controllers/postController");
  *         endDestination: "Los Angeles"
  *         date: "2024-03-17"
  *         description: "An amazing road trip across the USA."
- *         images: ["image1.jpg", "image2.jpg"]
+ *         images: ["uploads/image1.jpg", "uploads/image2.jpg"]
  */
 
 /**
@@ -55,16 +76,32 @@ const postController = require("../controllers/postController");
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Post'
+ *             type: object
+ *             properties:
+ *               startDestination:
+ *                 type: string
+ *               endDestination:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               description:
+ *                 type: string
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
  *     responses:
  *       201:
  *         description: Post created successfully
  *       400:
  *         description: Validation error - Missing required fields
  */
-router.post("/posts", postController.createPost);
+
+router.post("/posts", upload.array("images", 5), postController.createPost);
 
 /**
  * @swagger
@@ -121,16 +158,32 @@ router.get("/posts/:id", postController.getPostById);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Post'
+ *             type: object
+ *             properties:
+ *               startDestination:
+ *                 type: string
+ *               endDestination:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               description:
+ *                 type: string
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
  *     responses:
  *       200:
  *         description: Post updated successfully
  *       404:
  *         description: Post not found
  */
-router.put("/posts/:id", postController.updatePost);
+
+router.put("/posts/:id", upload.array("images", 5), postController.updatePost);
 
 /**
  * @swagger

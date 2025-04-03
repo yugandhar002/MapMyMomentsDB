@@ -1,22 +1,49 @@
+const multer = require("multer");
 const Post = require("../models/postModel");
+
+// Configure Multer for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Ensure "uploads" directory exists
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only images are allowed"), false);
+  }
+};
+
+// Initialize Multer
+const upload = multer({ storage, fileFilter });
 
 // CREATE a new post
 exports.createPost = async (req, res) => {
-    try {
-      const { startDestination, endDestination, date, description, images } = req.body;
-  
-      // If files are uploaded via multipart/form-data
-      const uploadedImages = req.files ? req.files.map((file) => file.path) : images || [];
-  
-      const newPost = new Post({ startDestination, endDestination, date, description, images: uploadedImages });
-      await newPost.save();
-  
+  try {
+      const { startDestination, endDestination, date, description } = req.body;
+
+      // Extract uploaded file paths
+      const imagePaths = req.files.map(file => file.path); // Save file paths
+
+      // Save post with images in the database
+      const newPost = await Post.create({
+          startDestination,
+          endDestination,
+          date,
+          description,
+          images: JSON.stringify(imagePaths) // Convert array to JSON string
+      });
+
       res.status(201).json({ message: "Post created successfully", post: newPost });
-    } catch (error) {
+  } catch (error) {
       res.status(500).json({ message: "Error creating post", error });
-    }
-  };
-  
+  }
+};
 
 // GET all posts
 exports.getAllPosts = async (req, res) => {
@@ -71,3 +98,6 @@ exports.deletePost = async (req, res) => {
     res.status(500).json({ message: "Error deleting post", error });
   }
 };
+
+// Export Multer middleware to use in routes
+exports.upload = upload.array("images", 5); // Allow multiple images (max: 5)
