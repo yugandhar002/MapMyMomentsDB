@@ -42,7 +42,7 @@ const Profile = sequelize.define("Profile", {
 }, { timestamps: true });
 
 // Define associations
-user.hasOne(Profile, { foreignKey: "userId" });  // A User has one Profile
-Profile.belongsTo(user, { foreignKey: "id" }); // A Profile belongs to one User
+user.hasOne(Profile, { foreignKey: "userId" ,onDelete:"CASCADE"});  // A User has one Profile
+Profile.belongsTo(user, { foreignKey: "id",onDelete:"CASCADE" }); // A Profile belongs to one User
 
 module.exports = Profile;
